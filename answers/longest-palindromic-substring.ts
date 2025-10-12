@@ -1,17 +1,38 @@
 function longestPalindrome(s: string): string {
-  let formatted = s.split("").join("#");
-  formatted = "^" + formatted + "$";
-  let answer = "";
-  for (let i = 0; i < formatted.length; i++) {
-    let left = i;
-    let right = i;
-    while (left && right) {
-      if (formatted[left] !== formatted[right]) break;
-      left--;
-      right++;
+  if (s.length === 0) return "";
+
+  const t = "^#" + s.split("").join("#") + "#$";
+  const n = t.length;
+  const p: number[] = new Array(n).fill(0);
+  let center = 0;
+  let right = 0;
+
+  for (let i = 1; i < n - 1; i++) {
+    const i_mirror = 2 * center - i;
+
+    if (i < right) {
+      p[i] = Math.min(right - i, p[i_mirror]);
     }
-    const temp = formatted.slice(left + 1, right);
-    if (answer.length < temp.length) answer = temp;
+
+    while (t[i + (1 + p[i])] === t[i - (1 + p[i])]) {
+      p[i]++;
+    }
+
+    if (i + p[i] > right) {
+      center = i;
+      right = i + p[i];
+    }
   }
-  return answer.replaceAll("#", "");
+
+  let maxLen = 0;
+  let centerIndex = 0;
+  for (let i = 1; i < n - 1; i++) {
+    if (p[i] > maxLen) {
+      maxLen = p[i];
+      centerIndex = i;
+    }
+  }
+
+  const start = Math.floor((centerIndex - maxLen) / 2);
+  return s.substring(start, start + maxLen);
 }
